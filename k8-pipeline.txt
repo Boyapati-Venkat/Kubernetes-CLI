@@ -1,0 +1,49 @@
+node {
+        stage("Git Clone"){
+            
+                echo "cloning the git repository"
+                git credentialsId: 'Git_Hub_Credentials', url: 'https://github.com/Boyapti-Venkat-TR/spring-boot-mongo-docker.git'
+
+           
+        }
+        stage("Maven Build"){
+          
+                echo "building with maven"
+                def name = "Venkat"
+                def mvnHome = tool name: 'Maven-3.6.1', type: 'maven'
+                def mavenCMD = "${mvnHome}/bin/mvn"
+                sh "${mavenCMD} clean package"
+
+                echo "$name"
+        }
+        stage("Docker Build"){
+           
+                echo "building docker Image"
+                sh "docker build -t venkatondevops/dotnetimages:1 ."
+
+           
+        }
+        stage("Docker Push"){
+           
+                withCredentials([string('credentialsId':'Docker_Logins', variable:'Docker_Logins')]){
+                sh "docker login -u venkatondevops -p ${Docker_Logins}"
+                }
+                echo "pushing the image to docker repository"
+                sh "docker push venkatondevops/dotnetimages:1"
+
+           
+        }
+        stage("Kubernetes Deploy"){
+           
+                echo "deploying the image to kubernetes cluster"
+                kubernetesDeploy(
+                    configs: 'springBootMongo.yml',
+                    kubeconfigId:'Kubernetes_Credentials',
+                    
+
+                )
+
+           
+        }
+    
+}

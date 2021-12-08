@@ -1,0 +1,8 @@
+what is static pod in kubernetes.
+what are init containers.
+
+
+
+aws eks update-kubeconfig \
+  --region us-east-1 \
+  --name my-k8-cluster
